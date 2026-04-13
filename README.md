@@ -1,59 +1,220 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# AltaEsencia Backend
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Backend Laravel para **AltaEsencia**, con dos capas principales:
 
-## About Laravel
+- **Storefront público** para que el frontend consuma catálogo y contenido comercial.
+- **Panel administrativo** para gestionar inventario, productos, usuarios y ventas.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Qué hace el proyecto
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Este proyecto centraliza la lógica del negocio de AltaEsencia:
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- expone endpoints públicos para el frontend de tienda
+- administra productos, categorías e imágenes
+- controla stock y movimientos de inventario
+- registra ventas, detalle, notas y anulaciones
+- permite acceso administrativo con login web
+- entrega métricas y reportes para dashboard
 
-## Learning Laravel
+## Funcionalidades principales
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+- Storefront público sin autenticación
+- Dashboard administrativo protegido por sesión
+- CRUD de categorías
+- CRUD de productos
+- Múltiples imágenes por producto
+- Gestión de usuarios administrativos y clientes
+- Movimientos de inventario: entrada, salida, ajuste, venta y devolución
+- Registro de ventas con detalle y notas
+- Anulación de ventas con reversión de stock
+- Reportes para dashboard
+- Configuración CORS para conectar frontend externo
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Tecnologías
 
-## Laravel Sponsors
+- PHP 8.2+
+- Laravel 12
+- MySQL
+- Vite
+- Tailwind CSS
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Endpoints públicos del storefront
 
-### Premium Partners
+Rutas pensadas para el frontend público:
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+- `GET /storefront/bootstrap`
+- `GET /storefront/categories/{categoryId}/products`
 
-## Contributing
+También están disponibles bajo prefijo `/api`:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- `GET /api/storefront/bootstrap`
+- `GET /api/storefront/categories/{categoryId}/products`
 
-## Code of Conduct
+Categorías válidas:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- `clothing`
+- `perfumes`
+- `cosmetics`
 
-## Security Vulnerabilities
+## Panel administrativo
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Rutas principales:
 
-## License
+- `/admin/login`
+- `/admin`
+- `/admin/api/*`
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+El panel permite:
+
+- ver métricas del negocio
+- crear y editar productos
+- administrar categorías
+- gestionar usuarios
+- registrar movimientos de inventario
+- crear y revisar ventas
+
+## Instalación
+
+1. Instalar dependencias PHP:
+
+```bash
+composer install
+```
+
+2. Crear el archivo de entorno:
+
+```bash
+copy .env.example .env
+```
+
+3. Generar la key:
+
+```bash
+php artisan key:generate
+```
+
+4. Configurar la base de datos en `.env`
+
+Ejemplo MySQL:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=altaesencia_bd
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+5. Ejecutar migraciones y seeders:
+
+```bash
+php artisan migrate --seed
+```
+
+6. Instalar dependencias frontend:
+
+```bash
+npm install
+```
+
+## Ejecución en desarrollo
+
+Backend Laravel:
+
+```bash
+php artisan serve
+```
+
+Frontend assets con Vite:
+
+```bash
+npm run dev
+```
+
+También puedes usar el script combinado:
+
+```bash
+composer run dev
+```
+
+## Build de producción
+
+```bash
+npm run build
+```
+
+Esto genera `public/build/manifest.json`, necesario para cargar los assets compilados del panel administrativo.
+
+## Variables útiles de entorno
+
+### Backend Laravel
+
+```env
+APP_NAME=AltaEsencia
+APP_ENV=local
+APP_DEBUG=true
+APP_URL=http://127.0.0.1:8000
+```
+
+### Storefront
+
+```env
+FRONTEND_URL=http://localhost:5174
+STOREFRONT_WHATSAPP_NUMBER=59175540850
+STOREFRONT_MAX_QUANTITY_PER_PRODUCT=3
+STOREFRONT_BRAND_NAME=AltaEsencia
+STOREFRONT_BRAND_SHORT_NAME=AE
+STOREFRONT_BRAND_TAGLINE=Estilo y Exclusividad
+```
+
+## CORS
+
+El proyecto ya está preparado para aceptar peticiones del frontend local, por ejemplo:
+
+- `http://localhost:5173`
+- `http://localhost:5174`
+- `http://127.0.0.1:5173`
+- `http://127.0.0.1:5174`
+
+La configuración vive en [config/cors.php](config/cors.php).
+
+## Usuario administrativo demo
+
+Si ejecutas los seeders, se crea este acceso:
+
+- correo: `admin@altaesencia.com`
+- contraseña: `password`
+
+## Estructura general
+
+- [routes/web.php](routes/web.php): rutas web y panel admin
+- [routes/api.php](routes/api.php): endpoints públicos y API general
+- [routes/admin-api.php](routes/admin-api.php): endpoints del panel admin
+- [app/Http/Controllers/Api](app/Http/Controllers/Api): controladores API
+- [app/Http/Controllers/Admin](app/Http/Controllers/Admin): login y vistas del panel
+- [app/Services](app/Services): lógica de negocio
+- [database/migrations](database/migrations): esquema de base de datos
+- [database/seeders](database/seeders): datos iniciales
+
+## Estado actual
+
+El sistema ya cuenta con:
+
+- catálogo público consumible desde frontend React
+- backend administrativo funcional
+- autenticación para administración
+- base de inventario y ventas
+- reportes iniciales para dashboard
+
+## Próximas mejoras recomendadas
+
+- mover contenido del storefront desde `config` a tablas administrables
+- agregar roles y permisos por módulo
+- exportación de reportes
+- autenticación API si en el futuro el frontend privado la necesita
+- tests funcionales conectados a MySQL de pruebas
+
+## Licencia
+
+Proyecto privado para uso del sistema AltaEsencia.
