@@ -7,8 +7,14 @@ use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ProductImageController;
 use App\Http\Controllers\Api\SaleController;
 use App\Http\Controllers\Api\SaleNoteController;
+use App\Http\Controllers\Api\StorefrontController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
+
+Route::prefix('storefront')->group(function () {
+    Route::get('/bootstrap', [StorefrontController::class, 'bootstrap']);
+    Route::get('/categories/{categoryId}/products', [StorefrontController::class, 'categoryProducts']);
+});
 
 Route::get('/dashboard', DashboardController::class);
 
