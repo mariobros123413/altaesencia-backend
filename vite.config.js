@@ -15,6 +15,7 @@ export default defineConfig({
         }),
         tailwindcss(),
     ],
+    base: '/build/',   // <-- fuerza rutas relativas
     server: {
         watch: {
             ignored: ['**/storage/framework/views/**'],
