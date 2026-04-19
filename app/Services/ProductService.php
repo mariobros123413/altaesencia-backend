@@ -20,6 +20,7 @@ class ProductService
 
             $images = Arr::pull($attributes, 'images');
             $attributes['category'] = $category->legacy_key;
+            $attributes = $this->normalizePricingAttributes($attributes);
 
             if (empty($attributes['image_url']) && empty($images)) {
                 throw ValidationException::withMessages([
@@ -49,6 +50,8 @@ class ProductService
                 $category = Category::query()->findOrFail($attributes['category_id']);
                 $attributes['category'] = $category->legacy_key;
             }
+
+            $attributes = $this->normalizePricingAttributes($attributes, $product);
 
             if ($images !== null) {
                 $attributes['image_url'] = $attributes['image_url'] ?? $this->resolvePrimaryImageUrl($images, $product->image_url);
@@ -145,5 +148,33 @@ class ProductService
         throw ValidationException::withMessages([
             'images' => ['No se pudo resolver una imagen principal para el producto.'],
         ]);
+    }
+
+    /**
+     * @param  array<string, mixed>  $attributes
+     * @return array<string, mixed>
+     */
+    private function normalizePricingAttributes(array $attributes, ?Product $product = null): array
+    {
+        $price = array_key_exists('price', $attributes)
+            ? (float) $attributes['price']
+            : ($product ? (float) $product->price : 0.0);
+
+        $originalPrice = array_key_exists('original_price', $attributes)
+            ? ($attributes['original_price'] !== null && $attributes['original_price'] !== '' ? (float) $attributes['original_price'] : null)
+            : ($product?->original_price !== null ? (float) $product->original_price : null);
+
+        $attributes['discount_percentage'] = $this->calculateDiscountPercentage($price, $originalPrice);
+
+        return $attributes;
+    }
+
+    private function calculateDiscountPercentage(float $price, ?float $originalPrice): int
+    {
+        if ($originalPrice === null || $originalPrice <= 0 || $price >= $originalPrice) {
+            return 0;
+        }
+
+        return (int) round((($originalPrice - $price) / $originalPrice) * 100);
     }
 }

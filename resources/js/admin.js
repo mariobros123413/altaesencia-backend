@@ -199,6 +199,28 @@ if (app) {
         refs.productForm.querySelector('[name="stock"]').value = '0';
         refs.productForm.querySelector('[name="minimum_stock"]').value = '0';
         refs.productForm.querySelector('[name="discount_percentage"]').value = '0';
+        updateProductDiscountField();
+    }
+
+    function calculateProductDiscountPercentage(price, originalPrice) {
+        const normalizedPrice = Number(price || 0);
+        const normalizedOriginalPrice = originalPrice === null || originalPrice === '' ? null : Number(originalPrice);
+
+        if (!normalizedOriginalPrice || normalizedOriginalPrice <= 0 || normalizedPrice >= normalizedOriginalPrice) {
+            return 0;
+        }
+
+        return Math.round(((normalizedOriginalPrice - normalizedPrice) / normalizedOriginalPrice) * 100);
+    }
+
+    function updateProductDiscountField() {
+        const priceInput = refs.productForm.querySelector('[name="price"]');
+        const originalPriceInput = refs.productForm.querySelector('[name="original_price"]');
+        const discountInput = refs.productForm.querySelector('[name="discount_percentage"]');
+
+        discountInput.value = String(
+            calculateProductDiscountPercentage(priceInput?.value, originalPriceInput?.value)
+        );
     }
 
     function createSaleItemRow(data = {}) {
@@ -288,18 +310,21 @@ if (app) {
             .split('\n')
             .map((item) => item.trim())
             .filter(Boolean);
+        const price = Number(formData.get('price') || 0);
+        const originalPriceValue = formData.get('original_price');
+        const originalPrice = originalPriceValue ? Number(originalPriceValue) : null;
 
         return {
             category_id: formData.get('category_id'),
             sku: formData.get('sku'),
             name: formData.get('name'),
             description: formData.get('description') || null,
-            price: Number(formData.get('price') || 0),
-            original_price: formData.get('original_price') ? Number(formData.get('original_price')) : null,
+            price,
+            original_price: originalPrice,
             rating: Number(formData.get('rating') || 5),
             stock: Number(formData.get('stock') || 0),
             minimum_stock: Number(formData.get('minimum_stock') || 0),
-            discount_percentage: Number(formData.get('discount_percentage') || 0),
+            discount_percentage: calculateProductDiscountPercentage(price, originalPrice),
             is_promotional: formData.get('is_promotional') === '1',
             estado: formData.get('estado') || 'activo',
             image_url: imageUrls[0] || null,
@@ -404,6 +429,7 @@ if (app) {
         refs.productForm.querySelector('[name="is_promotional"]').checked = Boolean(product.is_promotional);
         const orderedImages = (product.images ?? []).slice().sort((a, b) => a.sort_order - b.sort_order);
         refs.productForm.querySelector('[name="image_urls"]').value = orderedImages.map((image) => image.image_url).join('\n') || product.image_url || '';
+        updateProductDiscountField();
     }
 
     async function loadDashboard() {
@@ -872,6 +898,8 @@ if (app) {
         refs.userFormReset.addEventListener('click', resetUserForm);
         refs.productFormReset.addEventListener('click', resetProductForm);
         refs.saleItemAdd.addEventListener('click', () => createSaleItemRow());
+        refs.productForm.querySelector('[name="price"]').addEventListener('input', updateProductDiscountField);
+        refs.productForm.querySelector('[name="original_price"]').addEventListener('input', updateProductDiscountField);
 
         refs.saleItems.addEventListener('click', (event) => {
             if (event.target.closest('[data-sale-item-remove]')) {

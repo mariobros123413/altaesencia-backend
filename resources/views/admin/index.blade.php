@@ -236,7 +236,8 @@
                                     </div>
                                     <div>
                                         <label class="mb-2 block text-sm font-semibold">Descuento %</label>
-                                        <input class="admin-input" name="discount_percentage" type="number" min="0" max="100" value="0">
+                                        <input class="admin-input bg-stone-100 text-stone-500" name="discount_percentage" type="number" min="0" max="100" value="0" readonly>
+                                        <p class="mt-2 text-xs text-stone-500">Se calcula autom&aacute;ticamente seg&uacute;n la diferencia entre precio original y precio.</p>
                                     </div>
                                 </div>
                                 <label class="flex items-center gap-3 rounded-2xl border border-stone-200 bg-white/70 px-4 py-3 text-sm text-stone-600">
