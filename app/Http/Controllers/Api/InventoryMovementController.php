@@ -20,7 +20,7 @@ class InventoryMovementController extends Controller
     public function index(Request $request)
     {
         $movements = InventoryMovement::query()
-            ->with(['product.categoryRelation', 'user'])
+            ->with(['product.categoryRelation', 'product.images', 'user'])
             ->when($request->filled('product_id'), fn ($query) => $query->where('product_id', $request->string('product_id')))
             ->when($request->filled('user_id'), fn ($query) => $query->where('user_id', $request->integer('user_id')))
             ->when($request->filled('movement_type'), fn ($query) => $query->where('movement_type', $request->string('movement_type')))
@@ -37,7 +37,7 @@ class InventoryMovementController extends Controller
     public function byProduct(Request $request, Product $product)
     {
         $movements = $product->inventoryMovements()
-            ->with(['product.categoryRelation', 'user'])
+            ->with(['product.categoryRelation', 'product.images', 'user'])
             ->when($request->filled('movement_type'), fn ($query) => $query->where('movement_type', $request->string('movement_type')))
             ->latest()
             ->paginate($request->integer('per_page', 15))
@@ -52,7 +52,7 @@ class InventoryMovementController extends Controller
         $product = Product::query()->findOrFail($data['product_id']);
 
         return new InventoryMovementResource(
-            $this->inventoryService->recordMovement($product, $data)->load(['product.categoryRelation', 'user'])
+            $this->inventoryService->recordMovement($product, $data)->load(['product.categoryRelation', 'product.images', 'user'])
         );
     }
 }

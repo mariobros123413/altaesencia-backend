@@ -12,6 +12,16 @@ class ProductResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $imageUrls = $this->image_url ? [$this->image_url] : [];
+
+        if ($this->relationLoaded('images')) {
+            $imageUrls = $this->images
+                ->pluck('image_url')
+                ->filter()
+                ->values()
+                ->all();
+        }
+
         return [
             'id' => $this->id,
             'category_id' => $this->category_id,
@@ -22,6 +32,7 @@ class ProductResource extends JsonResource
             'original_price' => $this->original_price !== null ? (float) $this->original_price : null,
             'category' => $this->category,
             'image_url' => $this->image_url,
+            'image_urls' => $imageUrls,
             'is_promotional' => (bool) $this->is_promotional,
             'discount_percentage' => (int) $this->discount_percentage,
             'rating' => (float) $this->rating,

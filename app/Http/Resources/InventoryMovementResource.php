@@ -12,6 +12,20 @@ class InventoryMovementResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $imageUrls = [];
+
+        if ($this->relationLoaded('product') && $this->product) {
+            if ($this->product->relationLoaded('images')) {
+                $imageUrls = $this->product->images
+                    ->pluck('image_url')
+                    ->filter()
+                    ->values()
+                    ->all();
+            } elseif ($this->product->image_url) {
+                $imageUrls = [$this->product->image_url];
+            }
+        }
+
         return [
             'id' => $this->id,
             'product_id' => $this->product_id,
@@ -22,6 +36,7 @@ class InventoryMovementResource extends JsonResource
             'reference_id' => $this->reference_id,
             'notes' => $this->notes,
             'estado' => $this->estado,
+            'image_urls' => $imageUrls,
             'product' => new ProductResource($this->whenLoaded('product')),
             'user' => new UserResource($this->whenLoaded('user')),
             'created_at' => $this->created_at,

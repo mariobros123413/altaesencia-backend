@@ -32,6 +32,7 @@ class StorefrontController extends Controller
         }
 
         $products = Product::query()
+            ->with(['images' => fn ($query) => $query->orderByDesc('is_primary')->orderBy('sort_order')])
             ->where('category', $categoryId)
             ->where('estado', 'activo')
             ->orderByDesc('is_promotional')
@@ -67,9 +68,26 @@ class StorefrontController extends Controller
             'original_price' => $product->original_price !== null ? (float) $product->original_price : null,
             'category' => (string) $product->category,
             'image_url' => (string) $product->image_url,
+            'image_urls' => $this->resolveProductImageUrls($product),
             'is_promotional' => (bool) $product->is_promotional,
             'discount_percentage' => (int) $product->discount_percentage,
             'rating' => (float) $product->rating,
         ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function resolveProductImageUrls(Product $product): array
+    {
+        if ($product->relationLoaded('images')) {
+            return $product->images
+                ->pluck('image_url')
+                ->filter()
+                ->values()
+                ->all();
+        }
+
+        return $product->image_url ? [$product->image_url] : [];
     }
 }

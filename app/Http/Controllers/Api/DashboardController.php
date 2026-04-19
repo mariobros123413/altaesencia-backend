@@ -116,7 +116,7 @@ class DashboardController extends Controller
                 'category_breakdown' => $categoryBreakdown,
                 'recent_movements' => InventoryMovementResource::collection(
                     InventoryMovement::query()
-                        ->with(['product.categoryRelation', 'user'])
+                        ->with(['product.categoryRelation', 'product.images', 'user'])
                         ->latest()
                         ->limit(10)
                         ->get()
