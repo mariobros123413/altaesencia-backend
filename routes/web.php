@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AdminPageController;
 use App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\Api\StorefrontController;
 use Illuminate\Support\Facades\Route;
@@ -33,6 +34,8 @@ Route::prefix('storefront')->group(function () {
 });
 
 Route::get('/health', HealthController::class)->name('health');
+
+Route::get('/catalog/cosmetics', [CatalogController::class, 'cosmetics'])->name('catalog.cosmetics');
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/', AdminPageController::class)->name('admin.dashboard');
