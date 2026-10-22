@@ -11,6 +11,7 @@ if (app) {
         movements: [],
         sales: [],
         selectedSale: null,
+        catalogProductIds: new Set(),
     };
 
     const sections = Array.from(document.querySelectorAll('[data-section]'));
@@ -552,6 +553,7 @@ if (app) {
 
         fillSelect(refs.movementProductSelect, state.products.filter((product) => product.estado === 'activo'), (product) => `${product.name} (${product.sku})`);
         syncSaleItemSelects();
+        renderCatalogProducts();
     }
 
     async function loadMovements() {
@@ -588,6 +590,44 @@ if (app) {
                 </td>
             </tr>
         `).join('') || '<tr><td colspan="5" class="text-sm text-stone-500">Sin ventas registradas.</td></tr>';
+    }
+
+    function renderCatalogProducts() {
+        const mount = document.querySelector('#catalog-products');
+        if (!mount) return;
+        const query = (document.querySelector('#catalog-search')?.value ?? '').trim().toLowerCase();
+        const products = state.products.filter((product) => product.estado === 'activo' && `${product.name} ${product.sku}`.toLowerCase().includes(query));
+        mount.replaceChildren();
+        if (!products.length) {
+            mount.textContent = 'No hay productos activos que coincidan.';
+            return;
+        }
+        products.forEach((product) => {
+            const label = document.createElement('label');
+            label.className = 'flex cursor-pointer items-center gap-2 rounded-xl border border-stone-200 bg-white p-2 text-sm';
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox'; checkbox.dataset.catalogProduct = product.id;
+            checkbox.checked = state.catalogProductIds.has(product.id);
+            const name = document.createElement('span');
+            name.className = 'min-w-0 flex-1 truncate'; name.textContent = `${product.name} · ${product.sku}`;
+            const stock = document.createElement('small'); stock.className = 'text-stone-500'; stock.textContent = `Stock ${product.stock}`;
+            label.append(checkbox, name, stock); mount.append(label);
+        });
+    }
+
+    function generateCatalogLink() {
+        if (!state.catalogProductIds.size) throw new Error('Selecciona al menos un producto.');
+        const params = new URLSearchParams();
+        params.set('products', [...state.catalogProductIds].join(','));
+        params.set('title', document.querySelector('#catalog-title').value.trim() || 'Catálogo AltaEsencia');
+        params.set('fields', [...document.querySelectorAll('[data-catalog-field]:checked')].map((input) => input.dataset.catalogField).join(','));
+        const url = `${window.location.origin}/catalogo?${params.toString()}`;
+        const result = document.querySelector('#catalog-link-result');
+        result.replaceChildren(); result.classList.remove('hidden');
+        const link = document.createElement('a'); link.href = url; link.target = '_blank'; link.rel = 'noopener'; link.textContent = url; link.className = 'font-semibold text-amber-900 underline';
+        const copy = document.createElement('button'); copy.type = 'button'; copy.className = 'btn btn-secondary mt-3 w-full'; copy.textContent = 'Copiar enlace';
+        copy.addEventListener('click', async () => { await navigator.clipboard.writeText(url); showToast('Enlace copiado.', 'success'); });
+        result.append(link, copy);
     }
 
     async function loadSection(target) {
@@ -915,6 +955,21 @@ if (app) {
         refs.saleMarkPending.addEventListener('click', () => updateSalePaymentStatus('pendiente').catch((error) => showToast(error.message, 'error')));
         refs.saleNoteForm.addEventListener('submit', (event) => saveSaleNote(event).catch((error) => showToast(error.message, 'error')));
         refs.saleCancelForm.addEventListener('submit', (event) => cancelSale(event).catch((error) => showToast(error.message, 'error')));
+        document.querySelector('#catalog-search')?.addEventListener('input', renderCatalogProducts);
+        document.querySelector('#catalog-products')?.addEventListener('change', (event) => {
+            const checkbox = event.target.closest('[data-catalog-product]');
+            if (!checkbox) return;
+            checkbox.checked ? state.catalogProductIds.add(checkbox.dataset.catalogProduct) : state.catalogProductIds.delete(checkbox.dataset.catalogProduct);
+        });
+        document.querySelector('#catalog-toggle-all')?.addEventListener('click', () => {
+            const active = state.products.filter((product) => product.estado === 'activo');
+            const allSelected = active.every((product) => state.catalogProductIds.has(product.id));
+            active.forEach((product) => allSelected ? state.catalogProductIds.delete(product.id) : state.catalogProductIds.add(product.id));
+            renderCatalogProducts();
+        });
+        document.querySelector('#catalog-generate')?.addEventListener('click', () => {
+            try { generateCatalogLink(); } catch (error) { showToast(error.message, 'error'); }
+        });
 
         document.addEventListener('click', handleTableActions);
     }

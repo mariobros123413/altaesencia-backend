@@ -405,6 +405,26 @@
                     </div>
                 </section>
                 <section data-section="inventory" class="mt-6 hidden space-y-6">
+                    <article class="glass-panel rounded-[1.8rem] p-5">
+                        <div class="mb-5 flex flex-wrap items-start justify-between gap-3">
+                            <div><p class="panel-title">Catálogo virtual</p><h3 class="mt-2 text-xl font-black">Crear catálogo compartible</h3><p class="mt-1 text-sm text-stone-600">Elige productos y campos visibles. El enlace queda listo para compartir e incluye opción de PDF.</p></div>
+                            <span class="badge badge-success">Datos del inventario</span>
+                        </div>
+                        <div class="grid gap-4 lg:grid-cols-[1fr_1.4fr]">
+                            <div class="space-y-4">
+                                <label class="block text-sm font-semibold">Título del catálogo<input id="catalog-title" class="admin-input mt-2" maxlength="100" value="Catálogo AltaEsencia"></label>
+                                <fieldset><legend class="mb-2 text-sm font-semibold">Datos a mostrar</legend><div class="grid grid-cols-2 gap-2 text-sm">
+                                    <label><input type="checkbox" data-catalog-field="image" checked> Imagen</label><label><input type="checkbox" data-catalog-field="name" checked> Nombre</label>
+                                    <label><input type="checkbox" data-catalog-field="description" checked> Descripción</label><label><input type="checkbox" data-catalog-field="price" checked> Precio</label>
+                                    <label><input type="checkbox" data-catalog-field="category" checked> Categoría</label><label><input type="checkbox" data-catalog-field="sku"> SKU</label>
+                                    <label><input type="checkbox" data-catalog-field="rating"> Calificación</label><label><input type="checkbox" data-catalog-field="promotion"> Promoción</label>
+                                </div></fieldset>
+                                <button id="catalog-generate" class="btn btn-primary w-full" type="button">Generar enlace de catálogo</button>
+                                <div id="catalog-link-result" class="hidden break-all rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm"></div>
+                            </div>
+                            <div><div class="mb-2 flex items-center justify-between"><label class="text-sm font-semibold">Productos disponibles</label><button id="catalog-toggle-all" class="btn btn-secondary px-3 py-2 text-xs" type="button">Seleccionar todos</button></div><input id="catalog-search" class="admin-input mb-3" placeholder="Buscar por nombre o SKU"><div id="catalog-products" class="grid max-h-72 gap-2 overflow-y-auto rounded-2xl border border-stone-200 bg-white/60 p-3 sm:grid-cols-2"><p class="text-sm text-stone-500">Cargando productos…</p></div></div>
+                        </div>
+                    </article>
                     <div class="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
                         <article class="glass-panel rounded-[1.8rem] p-5">
                             <div class="mb-4 flex items-center justify-between">

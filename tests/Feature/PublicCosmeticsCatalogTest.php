@@ -49,6 +49,33 @@ class PublicCosmeticsCatalogTest extends TestCase
             ]]);
     }
 
+    public function test_shared_catalog_uses_selected_active_products_and_only_requested_fields(): void
+    {
+        $cosmetics = $this->category('Cosmetics', 'cosmetics');
+        $selected = $this->product($cosmetics, [
+            'name' => 'Selected serum',
+            'description' => 'Private description text',
+            'price' => 72.00,
+            'estado' => 'activo',
+        ]);
+        $this->product($cosmetics, ['name' => 'Inactive serum', 'estado' => 'inactivo']);
+
+        $this->get('/catalogo?'.http_build_query([
+            'products' => $selected->id,
+            'title' => 'Selección de temporada',
+            'fields' => 'name,price',
+        ]))
+            ->assertOk()
+            ->assertSee('Selección de temporada')
+            ->assertSee('Selected serum')
+            ->assertSee('72,00')
+            ->assertSee('/catalog/dynamic/catalog.css', false)
+            ->assertSee('/catalog/dynamic/catalog.js', false)
+            ->assertSee('id="catalog"', false)
+            ->assertDontSee('Private description text')
+            ->assertDontSee('Inactive serum');
+    }
+
     private function category(string $name, string $legacyKey): Category
     {
         return Category::query()->create([

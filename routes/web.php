@@ -36,6 +36,7 @@ Route::prefix('storefront')->group(function () {
 Route::get('/health', HealthController::class)->name('health');
 
 Route::get('/catalog/cosmetics', [CatalogController::class, 'cosmetics'])->name('catalog.cosmetics');
+Route::get('/catalogo', [CatalogController::class, 'show'])->name('catalog.show');
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/', AdminPageController::class)->name('admin.dashboard');
