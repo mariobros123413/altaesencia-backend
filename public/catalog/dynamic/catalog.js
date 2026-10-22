@@ -59,10 +59,8 @@ function productImage(product) {
   const wrap = node('div', 'product-image-wrap');
   if (product.image) {
     const img = node('img', 'product-image'); img.src = product.image; img.alt = product.name; img.loading = 'lazy';
-    const fallback = node('div', 'product-fallback', `<span>${esc(product.brand)}<br><small>${esc(product.name)}</small></span>`); fallback.hidden = true;
-    img.addEventListener('error', () => { img.hidden = true; fallback.hidden = false; }); wrap.append(img, fallback);
-  } else {
-    wrap.append(node('div', 'product-fallback', `<span>${esc(product.brand)}<br><small>${esc(product.name)}</small></span>`));
+    img.addEventListener('error', () => { img.hidden = true; });
+    wrap.append(img);
   }
   return wrap;
 }
@@ -75,10 +73,22 @@ function productPage(category, product) {
   const showImage = fields.has('image'); const showPrice = fields.has('price');
   const left = node('div');
   if (showImage) {
-    const visual = node('div', 'product-visual-card'); visual.append(node('div', 'visual-label', `ALTAESENCIA · ${esc(category.toUpperCase())}`), productImage(product)); left.append(visual);
+    const visual = node('div', 'product-visual-card'); visual.append(productImage(product)); left.append(visual);
   }
   if (showPrice) {
-    let priceHtml = `<div class="price-label">PRECIO CLIENTE</div><div class="price">${esc(brand.currency)} ${Number(product.price || 0).toLocaleString('es-BO')}</div>`;
+    const currentPrice = Number(product.price || 0);
+    const originalPrice = Number(product.originalPrice || 0);
+    const discountPercent = Number(product.promotion || 0);
+    const showOriginalPrice = fields.has('promotion') && originalPrice > currentPrice;
+    const hasPromotion = showOriginalPrice && discountPercent > 0;
+    const formatPrice = (value) => value.toLocaleString('es-BO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    let priceHtml = `<div class="price-label">PRECIO CLIENTE</div>`;
+    if (showOriginalPrice) {
+      const savings = originalPrice - currentPrice;
+      priceHtml += `<div class="price-original"><s>${esc(brand.currency)} ${formatPrice(originalPrice)}</s></div><div class="price-current-row"><div class="price">${esc(brand.currency)} ${formatPrice(currentPrice)}</div>${hasPromotion ? `<span class="price-discount">-${esc(discountPercent)}%</span>` : ''}</div>${hasPromotion ? `<div class="price-savings">Ahorras ${esc(brand.currency)} ${formatPrice(savings)}</div>` : ''}`;
+    } else {
+      priceHtml += `<div class="price">${esc(brand.currency)} ${formatPrice(currentPrice)}</div>`;
+    }
     if (fields.has('sku')) priceHtml += `<div class="price-meta">Código ${esc(product.code)}</div>`;
     left.append(node('div', 'price-card', priceHtml));
   }

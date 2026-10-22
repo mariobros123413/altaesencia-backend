@@ -56,6 +56,9 @@ class PublicCosmeticsCatalogTest extends TestCase
             'name' => 'Selected serum',
             'description' => 'Private description text',
             'price' => 72.00,
+            'original_price' => 90.00,
+            'is_promotional' => true,
+            'discount_percentage' => 20,
             'estado' => 'activo',
         ]);
         $this->product($cosmetics, ['name' => 'Inactive serum', 'estado' => 'inactivo']);
@@ -63,7 +66,7 @@ class PublicCosmeticsCatalogTest extends TestCase
         $this->get('/catalogo?'.http_build_query([
             'products' => $selected->id,
             'title' => 'Selección de temporada',
-            'fields' => 'name,price',
+            'fields' => 'name,price,promotion',
         ]))
             ->assertOk()
             ->assertSee('Selección de temporada')
@@ -72,6 +75,11 @@ class PublicCosmeticsCatalogTest extends TestCase
             ->assertSee('/catalog/dynamic/catalog.css', false)
             ->assertSee('/catalog/dynamic/catalog.js', false)
             ->assertSee('id="catalog"', false)
+            ->assertViewHas('catalogProducts', function (array $catalogProducts): bool {
+                $this->assertSame(90.0, $catalogProducts[0]['originalPrice']);
+                $this->assertSame(20, $catalogProducts[0]['promotion']);
+                return true;
+            })
             ->assertDontSee('Private description text')
             ->assertDontSee('Inactive serum');
     }
